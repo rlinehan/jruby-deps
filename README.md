@@ -1,4 +1,5 @@
 # JRuby dependencies
+[![Build Status](https://travis-ci.org/puppetlabs/jruby-deps.svg?branch=master)](https://travis-ci.org/puppetlabs/jruby-deps)
 
 This project just contains a simple [](project.clj) file for use in packaging
 up an uberjar which has just JRuby-specific dependencies that
