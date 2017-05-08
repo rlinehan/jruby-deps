@@ -15,7 +15,7 @@
                                      :username :env/clojars_jenkins_username
                                      :password :env/clojars_jenkins_password
                                      :sign-releases false}]]
-  
+
   :plugins [[lein-release-4digit-version "0.1.0"]]
 
   :uberjar-name "jruby-9k.jar"
