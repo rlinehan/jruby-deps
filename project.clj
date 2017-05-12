@@ -2,6 +2,24 @@
 (def jffi-version "1.2.12")
 (def jnr-x86asm-version "1.0.2")
 
+(def jruby-core-exclusions
+  [com.github.jnr/jffi
+   com.github.jnr/jnr-x86asm
+   org.ow2.asm/asm
+   org.ow2.asm/asm-analysis
+   org.ow2.asm/asm-commons
+   org.ow2.asm/asm-tree
+   org.ow2.asm/asm-util])
+
+(def jffi-deps
+  ;; jffi and jnr-x86asm are explicit dependencies because,
+  ;; in JRuby's poms, they are defined using version ranges,
+  ;; and :pedantic? :abort won't tolerate this.
+  [[com.github.jnr/jffi ~jffi-version]
+  [com.github.jnr/jffi ~jffi-version :classifier "native"]
+  [com.github.jnr/jnr-x86asm ~jnr-x86asm-version]
+  [org.jruby/jruby-stdlib ~jruby-version]])
+
 (defproject puppetlabs/jruby-deps "1.7.26-2-SNAPSHOT"
   :description "JRuby dependencies"
   :url "https://github.com/puppetlabs/jruby-deps"
@@ -17,31 +35,18 @@
   ;; section under the uberjar profile.  If you make any changes here,
   ;; check the uberjar dependencies to see if the change should be repeated
   ;; there.
-  :dependencies [[org.jruby/jruby-core ~jruby-version
-                  :exclusions [com.github.jnr/jffi
-                               com.github.jnr/jnr-x86asm
-                               org.ow2.asm/asm
-                               org.ow2.asm/asm-analysis
-                               org.ow2.asm/asm-commons
-                               org.ow2.asm/asm-tree
-                               org.ow2.asm/asm-util]]
+  :dependencies (concat [[org.jruby/jruby-core ~jruby-version
+                          :exclusions ~jruby-core-exclusions]
 
-                 ;; jruby-core has dependencies on discrete org.ow2.asm
-                 ;; artifacts whereas other common Clojure projects like
-                 ;; core.async declare a dependency on org.ow2.asm/asm-all,
-                 ;; which provides a superset of the content of the
-                 ;; discrete org.ow2.asm dependencies.  Defining asm-all
-                 ;; here to allows for conflict resolution to be possible
-                 ;; in consuming projects.
-                 [org.ow2.asm/asm-all "5.0.3"]
-
-                 ;; jffi and jnr-x86asm are explicit dependencies because,
-                 ;; in JRuby's poms, they are defined using version ranges,
-                 ;; and :pedantic? :abort won't tolerate this.
-                 [com.github.jnr/jffi ~jffi-version]
-                 [com.github.jnr/jffi ~jffi-version :classifier "native"]
-                 [com.github.jnr/jnr-x86asm ~jnr-x86asm-version]
-                 [org.jruby/jruby-stdlib ~jruby-version]]
+                         ;; jruby-core has dependencies on discrete org.ow2.asm
+                         ;; artifacts whereas other common Clojure projects like
+                         ;; core.async declare a dependency on org.ow2.asm/asm-all,
+                         ;; which provides a superset of the content of the
+                         ;; discrete org.ow2.asm dependencies.  Defining asm-all
+                         ;; here to allows for conflict resolution to be possible
+                         ;; in consuming projects.
+                         [org.ow2.asm/asm-all "5.0.3"]]
+                        ~jffi-deps)
 
   :deploy-repositories [["releases" {:url "https://clojars.org/repo"
                                      :username :env/clojars_jenkins_username
@@ -63,20 +68,11 @@
              ;; [org.ow2.asm/asm-all]
              ;; [org.yaml/snakeyaml]
              {:dependencies ^:replace
-              [[org.jruby/jruby-core ~jruby-version
-                :exclusions [com.github.jnr/jffi
-                             com.github.jnr/jnr-x86asm
-                             joda-time
-                             org.ow2.asm/asm
-                             org.ow2.asm/asm-analysis
-                             org.ow2.asm/asm-commons
-                             org.ow2.asm/asm-tree
-                             org.ow2.asm/asm-util
-                             org.yaml/snakeyaml]]
-               [com.github.jnr/jffi ~jffi-version]
-               [com.github.jnr/jffi ~jffi-version :classifier "native"]
-               [com.github.jnr/jnr-x86asm ~jnr-x86asm-version]
-               [org.jruby/jruby-stdlib ~jruby-version]]}}
+              (concat [[org.jruby/jruby-core ~jruby-version
+                        :exclusions (concat ~jruby-core-exclusions
+                                            [joda-time
+                                             org.yaml/snakeyaml])]]
+                      ~jffi-deps)}}
 
   :uberjar-name "jruby-1_7.jar"
 
